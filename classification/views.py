@@ -1,6 +1,11 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 import pickle
+from nltk.stem.snowball import SnowballStemmer
+
+snowball = SnowballStemmer('english')
+def snowball_tokenize(txt):
+    return [snowball.stem(w) for w in txt.split()]
 
 vectorizer = pickle.load(open("models/tfidf_vectorizer.pkl", 'rb'))
 model = pickle.load(open("models/lr_model.pkl", 'rb'))
