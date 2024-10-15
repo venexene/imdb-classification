@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Классификация отзывов</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            border: 2px solid #0288d1;
+        }
+        .txt {
+            color: #01579b;
+        }
+        .horizontal-line {
+            border-top: 2px solid #0288d1;
+            margin: 20px 0;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            resize: none;
+            margin-bottom: 10px;
+            border: 1px solid #0288d1;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #b3e5fc;
+        }
+        button {
+            background-color: #0288d1;
+            color: white;
+            border: none;
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0277bd;
+        }
+        .results-container {
+            margin-top: 10px;
+            background-color: #b3e5fc;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        #sentiment, #rating {
+            margin-top: 10px;
+            color: #01579b;
+        }
+        #emoji {
+            font-size: 48px;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #607D8B;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .progress-bar-inner {
+            height: 20px;
+            background-color: #0288D1;
+            width: 0;
+            transition: width 0.5s ease;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 class="txt">Классификация</h1>
+        <div class="horizontal-line"></div>
+        <h2 class="txt">Введите отзыв на английском языке:</h2>
+        <form id="review-form" method="post">
+            {% csrf_token %}
+            <textarea id="review-text" name="review_text">{{ review_text }}</textarea><br>
+            <button type="submit">Классифицировать</button>
+        </form>
+        <div class="results-container" id="results-container">
+            <h2 id="sentiment"></h2>
+            <h2 id="rating"></h2>
+            <div class="progress-bar">
+                <div id="progress-bar-inner" class="progress-bar-inner"></div>
+            </div>
+            <div id="emoji"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('#review-form').on('submit', function(event){
+                event.preventDefault();
+                $.ajax({
+                    url: "{% url 'classification' %}",
+                    method: "POST",
+                    data: {
+                        review_text: $('#review-text').val(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response){
+                        $('#sentiment').text('Результат: ' + response.sentiment);
+                        $('#rating').text('Примерная оценка: ' + response.rating + ' из 10');
+                        var rating = Math.round(response.rating * 10);
+                        $('#progress-bar-inner').css({'width': rating + '%'});
+                        var emoji = response.sentiment === 'Положительный' ? '👍' : '👎';
+                        $('#emoji').text(emoji);
+                        $('#results-container').show();
+                    }
+                });
+            });
+        });
+    </script>
+    
+</body>
+</html>
