@@ -11,7 +11,7 @@ for i in range(len(stopwords_list)):
 stopwords = set(stopwords_list)
 
 vectorizer = pickle.load(open("models/tfidf_vectorizer.pkl", 'rb'))
-model = pickle.load(open("models/lr_model.pkl", 'rb'))
+model = pickle.load(open("models/sgd_model.pkl", 'rb'))
 
 def preprocess(txt):
     txt = re.sub('<[^>]*>', '', txt)
